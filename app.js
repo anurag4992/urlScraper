@@ -1,28 +1,47 @@
-const express=require("express");
-const bodyParser=require("body-parser");
-const getMetadata=require("metadata-scraper");
+const express = require("express");
+const bodyParser = require("body-parser");
+const axios = require("axios");
+const cheerio = require("cheerio");
+const fs = require("fs");
+const { PORT } = require("./config/keys");
 
-const app=express();
+const app = express();
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", function(req, res){
-    res.sendFile(__dirname+"/index.html");
+
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
 });
 
-app.post("/", function(req, res){
-    const input=req.body.name;
-    getMetadata(input).then(data => {
-        res.send(data);
-    });
+app.post("/", (req, res) => {
 
+    axios.get(req.body.name)
+        .then((response) => {
+            let $ = cheerio.load(response.data);
+            let articles = {
+                title: $("#productTitle").text(),
+                description: $("#feature-bullets>ul").children().first().children().text(),
+                images: $("#imgTagWrapperId").children().attr("src")
+            };
+
+            // fs.writeFile('./articles.json', JSON.stringify(articles, null, 4), (error) => {
+            //     if (error) throw error;
+            //     else {
+            //         res.redirect("/");
+
+            //     }
+            // });
+
+            JSON.stringify(articles, null, 4);
+            res.send(articles);
+            
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 });
 
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 3000;
-}
-
-app.listen(port, function(){
+app.listen(PORT, function () {
     console.log("Server has started on port 3000");
 });

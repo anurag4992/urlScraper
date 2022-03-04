@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/anurag4992/urlScraper#readme",
   "dependencies": {
+    "axios": "^0.26.0",
     "body-parser": "^1.19.2",
+    "cheerio": "^1.0.0-rc.10",
     "express": "^4.17.3",
     "metadata-scraper": "^0.2.49"
   }
